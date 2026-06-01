@@ -66,3 +66,11 @@ test('extractPageIds returns empty array on malformed response', () => {
   assert.deepEqual(notion.extractPageIds(null), []);
   assert.deepEqual(notion.extractPageIds('not-json'), []);
 });
+
+test('resolveStage maps "기획서 검토" → write-policy-feedback', () => {
+  assert.equal(notion.resolveStage('기획서 검토'), 'write-policy-feedback');
+});
+
+test('resolveStage maps "통신 명세서" → draw-data-flow', () => {
+  assert.equal(notion.resolveStage('통신 명세서'), 'draw-data-flow');
+});
