@@ -20,51 +20,61 @@ user-invocable: false
 
 ## 3. 작성 절차
 
-본문 구조:
+본 stage는 **두 페이지**를 publish한다:
+1. "데이터 흐름도" (parent)
+2. "통신 명세서" (parent의 서브페이지로 link)
 
-```
-# 데이터 흐름도
+### 3.1 데이터 흐름도 작성
 
-## 1. 데이터 흐름 액션 (UI 액션 ID 기반)
-| UI 액션 ID | 데이터 흐름 ID | 흐름 종류 | 명세 |
-|---|---|---|---|
-| A-001 | D-001 | API | POST /auth/login |
-| A-001 | D-002 | Local | 토큰 keychain 저장 |
-| A-002 | D-003 | Socket | live:search:query |
+`references/data-flow-template.md`를 직접 따른다.
 
-## 2. API endpoint 명세
-### POST /auth/login
-- 도메인: 인증
-- Request: { email, password }
-- Response: { token, user }
-- 에러: 401 (인증 실패), 400 (입력 오류)
+1. 정책서 §역할 + UI 흐름도 §2 액션 정의를 fetch
+2. 역할 인벤토리 — 정책서 §역할 그대로
+3. 엔터티 책임 매트릭스 — 도메인 명세서 §1의 모든 엔터티에 대해 상태 주체 선언
+4. (optional) 상태 모델 동기화 메모 — 도메인과 같으면 "동일", 다르면 대응표
+5. 각 역할별로:
+   - 시퀀스 다이어그램 (actor/FE/BE/DB participants, rect로 단계 그룹)
+   - 액션·채널 매트릭스 (Action ID는 UI 흐름도 §2에서 재사용, Event ID는 본 페이지에서 신규 정의)
 
-(각 API마다 반복)
+### 3.2 통신 명세서 작성
 
-## 3. Socket event 명세
-### live:search:query
-- 도메인: 라이브방송
-- Payload: { query, limit }
-- Response: stream of { item }
-- 종료 조건: ...
+`references/comm-spec-template.md`를 직접 따른다.
 
-(각 Socket event마다 반복)
-```
+1. 채널 정의 — 페이로드 봉투 형식, 인증 정책
+2. API endpoint 카탈로그 — `/<도메인명>/<리소스>` 규약 + [확정]/[논의중] 상태
+3. Socket cmd 카탈로그 — 발신자/payload + [확정]/[논의중] 상태
 
-API endpoint는 `/<도메인명>/<리소스>` 컨벤션. 도메인명은 workspace.json의 `notion.domainMapping` 키와 일치 (예: `/dalla/users`).
-
-데이터 흐름 ID 패턴: `D-NNN`. **한 UI 액션이 여러 데이터 흐름과 연결될 수 있다** (1:N).
+API endpoint는 데이터 흐름도 액션·채널 매트릭스의 API 행과 1:1, Socket cmd는 Socket 행과 1:1.
 
 ## 4. Self-validation (publish 직전)
 
-- [ ] §1 모든 행의 UI 액션 ID가 UI 흐름도 §2에 존재
-- [ ] §1 데이터 흐름 ID는 모두 유일 (`D-NNN` 패턴)
-- [ ] §1 흐름 종류 ∈ {`API`, `Socket`, `Local`}
-- [ ] §2의 모든 API endpoint가 `/<도메인명>` 컨벤션 준수
-- [ ] §2/§3 명세된 모든 API/Socket이 §1 표에 등장
-- [ ] UI 흐름도의 모든 액션 ID가 §1에 최소 1개 매핑
+### 데이터 흐름도 페이지
+
+- [ ] 페이지 제목 = "데이터 흐름도"
+- [ ] 정책/도메인/UI 흐름도 + 통신 명세서 link 4종 footnote 존재
+- [ ] 역할 인벤토리가 정책서 §역할의 subset (또는 일치)
+- [ ] 엔터티 책임 매트릭스에 도메인 명세서 §1의 모든 엔터티가 등장
+- [ ] 상태 모델 동기화 메모 — "동일" 또는 대응표
+- [ ] 각 역할이 시퀀스 다이어그램 + 액션·채널 매트릭스 모두 존재
+- [ ] 시퀀스 다이어그램에 actor/FE/BE/DB participants 모두 등장
+- [ ] 액션·채널 매트릭스의 `Action ID`가 UI 흐름도 §2에 존재
+- [ ] 액션·채널 매트릭스의 `Event ID`는 패턴 `<역할>:Event:N` + 역할별 unique
+
+### 통신 명세서 페이지
+
+- [ ] 페이지 제목 = "통신 명세서"
+- [ ] 데이터 흐름도 link footnote 존재
+- [ ] 채널 정의 표 1행 이상
+- [ ] 각 API endpoint가 `/<도메인명>/<리소스>` 컨벤션 준수
+- [ ] 각 endpoint/cmd에 상태 ([확정] 또는 [논의중]) 명시
+- [ ] 데이터 흐름도 액션·채널 매트릭스의 모든 `메서드/이벤트명`이 본 페이지에 등장 (1:1 매핑)
+- [ ] 본 페이지에 등장하는 모든 endpoint/cmd가 데이터 흐름도에서 사용됨 (역방향 검증)
 
 ## 5. publish
+
+두 페이지를 **순차** publish (parent 먼저, child 뒤):
+
+### 5.1 데이터 흐름도
 
 ```
 yeoboya-publish-notion 호출:
@@ -72,8 +82,29 @@ yeoboya-publish-notion 호출:
   mode: "dispatch"
   stage: "draw-data-flow"
   title: "데이터 흐름도"
-  markdown: <본문>
+  markdown: <데이터 흐름도 본문>
 ```
+
+hook이 자동으로 `progress.stages.draw-data-flow.notionPageIds["데이터 흐름도"] = <pageId>` 부착. status는 `done` 유지 (`requiredTitles` 미충족).
+
+### 5.2 통신 명세서
+
+```
+yeoboya-publish-notion 호출:
+  task: <progress.task>
+  mode: "dispatch"
+  stage: "draw-data-flow"
+  title: "통신 명세서"
+  markdown: <통신 명세서 본문>
+  # 본 페이지를 데이터 흐름도 페이지의 자식으로 두려면 publish-notion이 parent 인자를 지원해야 함.
+  # 미지원이면 같은 dataSource에 평시 페이지로 publish 후, 데이터 흐름도 §footnote의 link만 수동 갱신.
+```
+
+두 번째 publish 후 hook이 두 페이지 모두 도착을 인지 → `status = "published"` flip + `STAGE_TO_TASK_STATE` lookup으로 작업 상태 "설계 단계" 전이 신호.
+
+### 5.3 데이터 흐름도 footnote 갱신
+
+통신 명세서 publish 결과 pageId/URL을 데이터 흐름도 본문 §footnote의 "통신 명세서 서브페이지" link로 갱신 (publish-notion mode="dispatch" 한 번 더, title="데이터 흐름도", markdown 전체 재작성 또는 update_content로 해당 라인만 교체).
 
 ## 6. 종료 안내
 
