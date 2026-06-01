@@ -74,3 +74,46 @@ test('resolveStage maps "기획서 검토" → write-policy-feedback', () => {
 test('resolveStage maps "통신 명세서" → draw-data-flow', () => {
   assert.equal(notion.resolveStage('통신 명세서'), 'draw-data-flow');
 });
+
+test('STAGE_TO_TASK_STATE: write-policy-feedback published → 기획 단계', () => {
+  assert.equal(notion.stateForStagePublished('write-policy-feedback'), '기획 단계');
+});
+
+test('STAGE_TO_TASK_STATE: write-policy published → 기획 단계', () => {
+  assert.equal(notion.stateForStagePublished('write-policy'), '기획 단계');
+});
+
+test('STAGE_TO_TASK_STATE: write-domain published → 설계 단계', () => {
+  assert.equal(notion.stateForStagePublished('write-domain'), '설계 단계');
+});
+
+test('STAGE_TO_TASK_STATE: draw-ui-flow/draw-data-flow published → 설계 단계', () => {
+  assert.equal(notion.stateForStagePublished('draw-ui-flow'), '설계 단계');
+  assert.equal(notion.stateForStagePublished('draw-data-flow'), '설계 단계');
+});
+
+test('STAGE_TO_TASK_STATE: write-qa published → 테스트 단계', () => {
+  assert.equal(notion.stateForStagePublished('write-qa'), '테스트 단계');
+});
+
+test('STAGE_TO_TASK_STATE: 매핑 없는 stage는 undefined', () => {
+  assert.equal(notion.stateForStagePublished('review-code'), undefined);
+  assert.equal(notion.stateForStagePublished('finish-work'), undefined);
+});
+
+test('isForwardTransition: 시작 전 → 기획 단계 = true', () => {
+  assert.equal(notion.isForwardTransition('시작 전', '기획 단계'), true);
+});
+
+test('isForwardTransition: 설계 단계 → 기획 단계 = false (regression)', () => {
+  assert.equal(notion.isForwardTransition('설계 단계', '기획 단계'), false);
+});
+
+test('isForwardTransition: 같은 상태로 = false', () => {
+  assert.equal(notion.isForwardTransition('설계 단계', '설계 단계'), false);
+});
+
+test('isForwardTransition: 미지의 상태 = false', () => {
+  assert.equal(notion.isForwardTransition('UNKNOWN', '설계 단계'), false);
+  assert.equal(notion.isForwardTransition('설계 단계', 'UNKNOWN'), false);
+});
