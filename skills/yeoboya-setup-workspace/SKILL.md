@@ -1,6 +1,6 @@
 ---
 name: yeoboya-setup-workspace
-description: "Use when the user invokes /yeoboya-setup-workspace, when workspace.json is missing and any other yeoboya-* skill needs to bootstrap, or when the user mentions 'plugin setup', 'workspace setup', '플러그인 설정', '워크스페이스 설정'. MANDATORY first run before any /yeoboya-start-work invocation. Verifies superpowers + Notion MCP prerequisites, collects service/platform/worker/Notion settings, writes .workflow/workspace.json."
+description: "Use when the user invokes /yeoboya-setup-workspace, when workspace.json is missing and any other yeoboya-* skill needs to bootstrap, or when the user mentions 'plugin setup', 'workspace setup', '플러그인 설정', '워크스페이스 설정'. MANDATORY first run before any /yeoboya-create-work invocation. Verifies superpowers + Notion MCP prerequisites, collects service/platform/worker/Notion settings, writes .workflow/workspace.json."
 ---
 
 # yeoboya-setup-workspace
@@ -45,9 +45,9 @@ prerequisite 통과 후 사용자에게 순차 질문:
   "services": ["달라", "클럽라이브", "여보야", "클럽5678", "AI식단"],
   "platform": "iOS",
   "worker": "윤병은",
-  "activeTask": null,
+  "activeWork": null,
   "notion": {
-    "taskDbDataSourceUrl": "https://...",
+    "workDbDataSourceUrl": "https://...",
     "workerPageId": "abc...",
     "domainMapping": {}
   }
@@ -60,12 +60,12 @@ prerequisite 통과 후 사용자에게 순차 질문:
 
 ```
 워크스페이스 설정 완료. 다음 단계:
-  새 작업: /yeoboya-start-work <작업번호>
-  진행 중 작업 재개: /yeoboya-continue-work
+  새 작업: /yeoboya-create-work <작업번호>
+  진행 중 작업 재개: /yeoboya-route-work
 ```
 
 ## 5. Self-validation
 
 publish 단계가 없는 skill이지만, workspace.json 작성 직전에 다음을 확인:
-- 모든 필수 필드 채워졌는지 (services, platform, worker, notion.taskDbDataSourceUrl, notion.workerPageId)
+- 모든 필수 필드 채워졌는지 (services, platform, worker, notion.workDbDataSourceUrl, notion.workerPageId)
 - JSON 파싱 가능한지 (`JSON.stringify` round-trip)
