@@ -2,12 +2,12 @@
 'use strict';
 
 const {
-  NOTION_WRITE_TOOLS, resolveStage, extractPagesFromInput, extractPageIds,
+  NOTION_WRITE_TOOLS, resolveKey, extractPagesFromInput, extractPageIds,
 } = require('./lib/notion');
 const { readStdin, allow, log } = require('./lib/hook-runtime');
-const { readActiveTask, markStagePublished } = require('./lib/progress');
+const { readActiveWork, recordLink } = require('./lib/work');
 
-const MULTI_PAGE_STAGE_TITLES = {
+const MULTI_PAGE_KEY_TITLES = {
   'draw-data-flow': ['데이터 흐름도', '통신 명세서'],
 };
 
@@ -30,30 +30,26 @@ const MULTI_PAGE_STAGE_TITLES = {
     return allow();
   }
 
-  const task = readActiveTask(root);
-  if (!task) {
-    log({ hook: 'page-record', event: 'skip', reason: 'no-active-task' });
+  const work = readActiveWork(root);
+  if (!work) {
+    log({ hook: 'page-record', event: 'skip', reason: 'no-active-work' });
     return allow();
   }
 
   const len = Math.min(pages.length, ids.length);
   for (let i = 0; i < len; i++) {
     const title = pages[i].title;
-    const stage = resolveStage(title);
-    if (!stage) {
+    const key = resolveKey(title);
+    if (!key) {
       log({ hook: 'page-record', event: 'skip', reason: 'unknown-title', title });
       continue;
     }
-
-    const requiredTitles = MULTI_PAGE_STAGE_TITLES[stage];
-    const ok = requiredTitles
-      ? markStagePublished(root, task, stage, ids[i], { title, requiredTitles })
-      : markStagePublished(root, task, stage, ids[i]);
-
+    const multi = MULTI_PAGE_KEY_TITLES[key] ? { title } : undefined;
+    const ok = recordLink(root, work, key, ids[i], multi);
     if (ok) {
-      log({ hook: 'page-record', event: 'capture', stage, title, pageId: ids[i] });
+      log({ hook: 'page-record', event: 'capture', key, title, pageId: ids[i] });
     } else {
-      log({ hook: 'page-record', event: 'skip', reason: 'not-done-or-missing-stage', stage });
+      log({ hook: 'page-record', event: 'skip', reason: 'no-work-json', key });
     }
   }
   return allow();

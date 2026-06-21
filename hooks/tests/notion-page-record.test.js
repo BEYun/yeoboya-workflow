@@ -7,20 +7,16 @@ const { spawnSync } = require('node:child_process');
 
 const { createPagesPayload, createPagesResponse } = require('./fixtures');
 
-function tmpRoot() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'yb-page-record-'));
-}
+function tmpRoot() { return fs.mkdtempSync(path.join(os.tmpdir(), 'yb-page-record-')); }
 
-function setupTask(root, stagesPatch) {
+function setupWork(root, workData) {
   const ws = path.join(root, '.workflow', 'workspace.json');
   fs.mkdirSync(path.dirname(ws), { recursive: true });
-  fs.writeFileSync(ws, JSON.stringify({ activeTask: 'DCL-1234' }));
-  const pg = path.join(root, '.workflow', 'DCL-1234', 'progress.json');
-  fs.mkdirSync(path.dirname(pg), { recursive: true });
-  fs.writeFileSync(pg, JSON.stringify({
-    task: 'DCL-1234', workType: 'feature', stages: stagesPatch
-  }));
-  return pg;
+  fs.writeFileSync(ws, JSON.stringify({ activeWork: 'DCL-1234' }));
+  const wf = path.join(root, '.workflow', 'DCL-1234', 'work.json');
+  fs.mkdirSync(path.dirname(wf), { recursive: true });
+  fs.writeFileSync(wf, JSON.stringify({ work: 'DCL-1234', workType: 'feature', links: {}, ...workData }));
+  return wf;
 }
 
 function runHook(root, payload) {
@@ -31,35 +27,26 @@ function runHook(root, payload) {
   });
 }
 
-test('flips stage from done → published with notionPageId on matching title', () => {
+test('records pageId into links on matching title', () => {
   const root = tmpRoot();
-  const pgFile = setupTask(root, { 'write-policy': { status: 'done' } });
-
+  const wf = setupWork(root, {});
   const inp = createPagesPayload([{ title: '정책서', markdown: '...' }]);
-  const result = runHook(root, {
-    ...inp,
-    tool_response: createPagesResponse(['notion-page-abc']),
-  });
-
+  const result = runHook(root, { ...inp, tool_response: createPagesResponse(['notion-page-abc']) });
   assert.equal(result.status, 0);
-  const after = JSON.parse(fs.readFileSync(pgFile, 'utf8'));
-  assert.equal(after.stages['write-policy'].status, 'published');
-  assert.equal(after.stages['write-policy'].notionPageId, 'notion-page-abc');
+  const after = JSON.parse(fs.readFileSync(wf, 'utf8'));
+  assert.equal(after.links['write-policy'], 'notion-page-abc');
 });
 
-test('does not flip stage when title is unknown', () => {
+test('does not record when title is unknown', () => {
   const root = tmpRoot();
-  const pgFile = setupTask(root, { 'write-policy': { status: 'done' } });
-
+  const wf = setupWork(root, {});
   const inp = createPagesPayload([{ title: '미지의 페이지', markdown: '...' }]);
   runHook(root, { ...inp, tool_response: createPagesResponse(['p-x']) });
-
-  const after = JSON.parse(fs.readFileSync(pgFile, 'utf8'));
-  assert.equal(after.stages['write-policy'].status, 'done');
-  assert.equal(after.stages['write-policy'].notionPageId, undefined);
+  const after = JSON.parse(fs.readFileSync(wf, 'utf8'));
+  assert.deepEqual(after.links, {});
 });
 
-test('skips silently when no activeTask', () => {
+test('skips silently when no activeWork', () => {
   const root = tmpRoot();
   const inp = createPagesPayload([{ title: '정책서', markdown: '...' }]);
   const result = runHook(root, { ...inp, tool_response: createPagesResponse(['p-x']) });
@@ -68,78 +55,37 @@ test('skips silently when no activeTask', () => {
 
 test('skips silently when tool_name is unrelated', () => {
   const root = tmpRoot();
-  const pgFile = setupTask(root, { 'write-policy': { status: 'done' } });
-  const result = runHook(root, {
-    tool_name: 'mcp__some-other-tool',
-    tool_input: {},
-    tool_response: {},
-  });
+  const wf = setupWork(root, {});
+  const result = runHook(root, { tool_name: 'mcp__some-other-tool', tool_input: {}, tool_response: {} });
   assert.equal(result.status, 0);
-  const after = JSON.parse(fs.readFileSync(pgFile, 'utf8'));
-  assert.equal(after.stages['write-policy'].status, 'done');
+  const after = JSON.parse(fs.readFileSync(wf, 'utf8'));
+  assert.deepEqual(after.links, {});
 });
 
-test('does not flip when current stage status is not done (e.g., still todo)', () => {
+test('multi-page 첫 페이지(데이터 흐름도) → links[draw-data-flow] = {데이터 흐름도}', () => {
   const root = tmpRoot();
-  const pgFile = setupTask(root, { 'write-policy': { status: 'todo' } });
-
-  const inp = createPagesPayload([{ title: '정책서', markdown: '...' }]);
-  runHook(root, { ...inp, tool_response: createPagesResponse(['p-x']) });
-
-  const after = JSON.parse(fs.readFileSync(pgFile, 'utf8'));
-  assert.equal(after.stages['write-policy'].status, 'todo');
-});
-
-test('multi-page stage — 첫 페이지(데이터 흐름도) publish → done 유지 + notionPageIds 부착', () => {
-  const root = tmpRoot();
-  const pgFile = setupTask(root, { 'draw-data-flow': { status: 'done' } });
-
+  const wf = setupWork(root, {});
   const inp = createPagesPayload([{ title: '데이터 흐름도', markdown: '...' }]);
-  const result = runHook(root, {
-    ...inp,
-    tool_response: createPagesResponse(['p-dataflow']),
-  });
-
+  const result = runHook(root, { ...inp, tool_response: createPagesResponse(['p-dataflow']) });
   assert.equal(result.status, 0);
-  const after = JSON.parse(fs.readFileSync(pgFile, 'utf8'));
-  assert.equal(after.stages['draw-data-flow'].status, 'done');
-  assert.deepEqual(after.stages['draw-data-flow'].notionPageIds, { '데이터 흐름도': 'p-dataflow' });
+  const after = JSON.parse(fs.readFileSync(wf, 'utf8'));
+  assert.deepEqual(after.links['draw-data-flow'], { '데이터 흐름도': 'p-dataflow' });
 });
 
-test('multi-page stage — 두 번째 페이지(통신 명세서) publish → published flip', () => {
+test('multi-page 두 번째(통신 명세서) → 두 제목 누적', () => {
   const root = tmpRoot();
-  const pgFile = setupTask(root, {
-    'draw-data-flow': {
-      status: 'done',
-      notionPageIds: { '데이터 흐름도': 'p-dataflow' }
-    }
-  });
-
+  const wf = setupWork(root, { links: { 'draw-data-flow': { '데이터 흐름도': 'p-dataflow' } } });
   const inp = createPagesPayload([{ title: '통신 명세서', markdown: '...' }]);
-  runHook(root, {
-    ...inp,
-    tool_response: createPagesResponse(['p-comm']),
-  });
-
-  const after = JSON.parse(fs.readFileSync(pgFile, 'utf8'));
-  assert.equal(after.stages['draw-data-flow'].status, 'published');
-  assert.deepEqual(after.stages['draw-data-flow'].notionPageIds, {
-    '데이터 흐름도': 'p-dataflow',
-    '통신 명세서': 'p-comm',
-  });
+  runHook(root, { ...inp, tool_response: createPagesResponse(['p-comm']) });
+  const after = JSON.parse(fs.readFileSync(wf, 'utf8'));
+  assert.deepEqual(after.links['draw-data-flow'], { '데이터 흐름도': 'p-dataflow', '통신 명세서': 'p-comm' });
 });
 
-test('기획서 검토 page → write-policy-feedback published', () => {
+test('기획서 검토 → links[write-policy-feedback] 기록', () => {
   const root = tmpRoot();
-  const pgFile = setupTask(root, { 'write-policy-feedback': { status: 'done' } });
-
+  const wf = setupWork(root, {});
   const inp = createPagesPayload([{ title: '기획서 검토', markdown: '...' }]);
-  runHook(root, {
-    ...inp,
-    tool_response: createPagesResponse(['p-fb']),
-  });
-
-  const after = JSON.parse(fs.readFileSync(pgFile, 'utf8'));
-  assert.equal(after.stages['write-policy-feedback'].status, 'published');
-  assert.equal(after.stages['write-policy-feedback'].notionPageId, 'p-fb');
+  runHook(root, { ...inp, tool_response: createPagesResponse(['p-fb']) });
+  const after = JSON.parse(fs.readFileSync(wf, 'utf8'));
+  assert.equal(after.links['write-policy-feedback'], 'p-fb');
 });
