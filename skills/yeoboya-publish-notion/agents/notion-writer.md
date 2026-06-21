@@ -28,7 +28,7 @@ Notion MCP 도구 호출을 정확한 payload 구조로 실행하는 subagent.
 
 ## 응답
 
-성공: `{ ok: true, pageId | rowId | row }`
+성공: `{ ok: true, pageId | rowId | row | children }` — `list-children`는 `children: [{ title, id }]` 반환
 실패: `{ ok: false, error }`
 
-응답은 호출자가 hook을 거쳐 work.json.links에 반영하므로 본 subagent에서 work.json 쓰기 안 함.
+본 subagent는 work.json 쓰기 안 함 — create/update는 hook이 기록하고, list-children은 sync-links node 헬퍼가 기록한다.
