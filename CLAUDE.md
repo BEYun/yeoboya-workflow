@@ -13,26 +13,26 @@
 
 | 데이터 | SOT |
 |---|---|
-| 진행 상태 (stage status, workType) | 로컬 `.workflow/<작업번호>/progress.json` |
+| 작업 메타데이터 + Notion 산출물 링크 (workType 라벨, `links`) | 로컬 `.workflow/<작업번호>/work.json` |
 | write-code phase 진행 | 로컬 `.workflow/<작업번호>/code-phases.json` |
 | 산출물 본문 (정책서/흐름도/QA 등) | Notion |
 | 워크스페이스 설정 | 로컬 `.workflow/workspace.json` |
 
-연결 규칙: `progress.stages[<key>].notionPageId`로 로컬 상태와 Notion 산출물을 연결.
+연결 규칙: `work.json.links[<key>]`로 작업목록 항목과 Notion 산출물을 연결한다. 다중 페이지 항목(draw-data-flow)은 `links[<key>][<페이지 제목>]`.
 
-상태는 로컬, 내용은 Notion. 두 SOT의 의미가 충돌하면: 상태값을 Notion 페이지 존재 여부로 추론하지 않고, 내용을 progress.json 필드로 추론하지 않는다.
+진행 상태(stage status)·파이프라인 개념은 없다. 작업목록 항목은 순서·선행조건 없이 자유 선택된다. 항목이 "실행됨"인지는 `links`에 키가 존재하는지로만 판단하며, 별도 상태값을 두지 않는다. Notion 링크·메타데이터는 로컬(work.json), 산출물 본문은 Notion이 SOT.
 
 ## skill 호출 규약
 
-- **user-invocable 진입은 3개**: `/yeoboya-setup-workspace`, `/yeoboya-start-work`, `/yeoboya-continue-work`
-- stage skill은 모두 `user-invocable: false`. `continue-work`이 Skill 도구로 trigger한다
-- **stage 단위 세션 분리 권장**: stage 완료 후 새 세션에서 `/yeoboya-continue-work` 재호출
-- **write-code 진입 게이트**: `continue-work`이 write-code stage trigger 직전 사용자 확인 게이트를 띄운다
+- **user-invocable 진입은 3개**: `/yeoboya-setup-workspace`, `/yeoboya-create-work`, `/yeoboya-route-work`
+- 작업목록 스킬은 모두 `user-invocable: false`. `route-work`이 Skill 도구로 trigger한다
+- **항목 단위 세션 분리 권장**: 항목 완료 후 새 세션에서 `/yeoboya-route-work` 재호출
+- **write-code 진입 경고**: `route-work`이 write-code trigger 직전 항상 표시되는 단순 경고 게이트를 띄운다 (선행 항목 실행 여부는 검사하지 않음)
 
 ## skill self-validation 원칙
 
-각 stage skill은 Notion publish 직전 자기 산출물을 자체 검증한다. 검증 체크리스트는 각 skill 본문 또는 `skills/<name>/references/`에 명시. content-validate hook은 없다.
+각 작업목록 스킬은 Notion publish 직전 자기 산출물을 자체 검증한다. 검증 체크리스트는 각 skill 본문 또는 `skills/<name>/references/`에 명시. content-validate hook은 없다.
 
 ## 상태/스키마/상수 단일 출처
 
-상태 파일 스키마, 모든 stage 키와 라벨 매핑, workType별 부분집합 — 전부 `references/state-schema.md`에 있다. skill 본문에 중복 정의 금지.
+상태 파일 스키마, 모든 작업목록 키와 라벨 매핑(`WORK_LIST`/`WORK_GROUPS`/`WORK_LABELS`/`TITLE_TO_KEY`) — 전부 `references/state-schema.md`에 있다. skill 본문에 중복 정의 금지.
