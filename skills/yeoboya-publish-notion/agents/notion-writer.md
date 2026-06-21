@@ -13,22 +13,20 @@ Notion MCP 도구 호출을 정확한 payload 구조로 실행하는 subagent.
 - `mcp__claude_ai_Notion__notion-update-page` 호출 (replace_content / update_content)
 - properties (title, select, multi-select, relation, date, checkbox) 빌딩
 - 작업 DB row query (sync)
-- 작업 DB row의 `작업 상태` select 단독 갱신 (state-transition)
 - 담당자 relation **append-only union** 연산 — 기존 URL list 읽고 신규 worker URL이 없을 때만 push, 절대 set/replace 금지
 
 ## 호출 규약
 
 호출자(`yeoboya-publish-notion`)에게서 다음을 받는다:
-- `mode`: "create" | "update" | "query" | "state-transition"
+- `mode`: "create" | "update" | "query"
 - `dataSourceId` 또는 `pageId`
 - mode별 payload:
   - `create`/`update`: `title`, `markdown`, `properties`
   - `query`: 검색 조건 (작업 번호 텍스트 매칭)
-  - `state-transition`: `pageId`, `desiredState` (작업 상태 select option name 1개)
 
 ## 응답
 
 성공: `{ ok: true, pageId | rowId | row }`
 실패: `{ ok: false, error }`
 
-응답은 호출자가 hook을 거쳐 progress.json에 반영하므로 본 subagent에서 progress 쓰기 안 함.
+응답은 호출자가 hook을 거쳐 work.json.links에 반영하므로 본 subagent에서 work.json 쓰기 안 함.
