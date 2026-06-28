@@ -86,3 +86,11 @@ test('KEY_TO_TITLE draw-data-flow has exactly 2 titles', () => {
 test('KEY_TO_TITLE write-policy has exactly 1 title', () => {
   assert.deepEqual(notion.KEY_TO_TITLE['write-policy'], ['정책서']);
 });
+
+test('resolveKey maps "버그 분석" → analyze-bug', () => {
+  assert.equal(notion.resolveKey('버그 분석'), 'analyze-bug');
+});
+
+test('KEY_TO_TITLE analyze-bug has exactly 1 title', () => {
+  assert.deepEqual(notion.KEY_TO_TITLE['analyze-bug'], ['버그 분석']);
+});
