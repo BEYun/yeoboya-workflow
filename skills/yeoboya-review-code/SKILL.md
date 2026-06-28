@@ -1,6 +1,6 @@
 ---
 name: yeoboya-review-code
-description: "Use ONLY when yeoboya-route-work triggers this work-list item. NEVER invoke directly. Collects work-related diff via `git log --grep='[<작업번호>]'`, dispatches code-reviewer subagent for findings, lets user decide fix-or-pass per finding. Output: review markdown + (optional) Notion page. Notion publish is optional."
+description: "yeoboya-route-work이 이 작업목록 항목을 trigger할 때만 사용한다. 직접 호출 금지. `git log --grep='[<작업번호>]'`로 작업 관련 diff를 수집하고, code-reviewer 서브에이전트를 디스패치해 발견사항을 도출하며, 발견사항마다 사용자가 수정-또는-통과를 결정하게 한다. 출력: 리뷰 markdown + (선택) Notion 페이지. Notion 게시는 선택사항이다."
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: yeoboya-finish-work
-description: "Use ONLY when yeoboya-route-work triggers this 작업 종결 work-list item. NEVER invoke directly. Verifies git log commit-pattern compliance, reports which deliverables exist in work.json.links, toggles workspace.platform-matching iOS_완료/Android_완료 boolean on the work DB row, prints a closing report. Does not publish new pages, writes nothing to work.json, and does not touch 작업 상태."
+description: "yeoboya-route-work이 이 작업 종결 작업목록 항목을 trigger할 때만 사용한다. 직접 호출 금지. git log 커밋 패턴 준수를 검증하고, work.json.links에 어떤 산출물이 존재하는지 보고하며, 작업 DB row에서 workspace.platform에 대응하는 iOS_완료/Android_완료 boolean을 토글하고, 종결 보고서를 출력한다. 새 페이지를 게시하지 않고, work.json에 아무것도 쓰지 않으며, 작업 상태를 건드리지 않는다."
 user-invocable: false
 ---
 

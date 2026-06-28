@@ -1,6 +1,6 @@
 ---
 name: yeoboya-write-code
-description: "Use ONLY when yeoboya-route-work triggers this work-list item (or for re-execution targeting a specific phase). NEVER invoke directly. On first call: reads prior Notion deliverables, derives N architectural phases via brainstorming, writes .workflow/<작업번호>/phases/<phase명>.md per phase, initializes code-phases.json with dynamic keys. On resume: reads code-phases.json, lets user pick a phase. Executes one phase per session (TDD). Does NOT call yeoboya-publish-notion."
+description: "yeoboya-route-work이 이 작업목록 항목을 trigger할 때만(또는 특정 phase를 겨냥한 재실행 시) 사용한다. 직접 호출 금지. 최초 호출 시: 이전 Notion 산출물을 읽고, brainstorming으로 N개의 아키텍처 phase를 도출하며, phase마다 .workflow/<작업번호>/phases/<phase명>.md를 작성하고, 동적 키로 code-phases.json을 초기화한다. 재개 시: code-phases.json을 읽고 사용자가 phase를 고르게 한다. 세션당 한 phase를 실행한다(TDD). yeoboya-publish-notion을 호출하지 않는다."
 user-invocable: false
 ---
 
