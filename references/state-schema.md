@@ -82,7 +82,7 @@ SUBTASK_LIST = [
   "draw-ui-flow", "draw-data-flow", "write-qa",
   "analyze-bug", "write-code", "fix-bug", "review-code",
   "fix-qa-bug", "finish-work"
-]   # 전체 12개 키 등록부 (가시성·라벨 무관). 표시 순서의 정본.
+]   # 전체 12개 키 등록부 (가시성·라벨 무관). 키 정본 — 표시 순서는 workType별 SUBTASK_GROUPS가 결정.
 
 # workType → { 그룹: [키…] }. 그룹/키 순서가 곧 select-subtask 표시 순서.
 SUBTASK_GROUPS = {

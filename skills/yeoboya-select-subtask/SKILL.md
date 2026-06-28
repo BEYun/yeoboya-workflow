@@ -1,6 +1,6 @@
 ---
 name: yeoboya-select-subtask
-description: "사용자가 /yeoboya-select-subtask을 호출하거나, 세부작업 목록을 열거나 작업을 진행하려는 의도를 표현할 때('작업 진행', '세부작업 목록', '다음 세부 작업') 사용한다. .workflow/에서 작업(각각 work.json을 가짐)을 스캔하고, 사용자가 하나를 고르게 하며(activeWork는 [현재]로 표시), 추천 없이 workType별로 다르게 구성된 세부작업 목록(그룹별)을 보여준 뒤 Skill 도구로 선택된 yeoboya-<key> 스킬을 trigger한다. 구현에 착수하기 전 write-code 진입 게이트(sync-links + 필수 문서 검사; workType=feature는 정책서/UI 흐름도/데이터 흐름도가 없으면 하드 블록)를 포함한다."
+description: "사용자가 /yeoboya-select-subtask을 호출하거나, 세부작업 목록을 열거나 작업을 진행하려는 의도를 표현할 때('작업 진행', '세부작업 목록', '다음 세부 작업') 사용한다. .workflow/에서 작업(각각 work.json을 가짐)을 스캔하고, 사용자가 하나를 고르게 하며(activeWork는 [현재]로 표시), 추천 없이 workType별로 다르게 구성된 세부작업 목록(그룹별)을 보여준 뒤 Skill 도구로 선택된 yeoboya-<key> 스킬을 trigger한다. 구현에 착수하기 전 진입 게이트(write-code: sync-links + 필수 문서 검사 — workType=feature는 정책서/UI 흐름도/데이터 흐름도가 없으면 하드 블록; bugfix write-qa는 버그 분석이 없으면 소프트 경고)를 포함한다."
 user-invocable: true
 ---
 
