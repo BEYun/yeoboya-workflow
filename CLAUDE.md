@@ -1,4 +1,4 @@
-# yeoboya-workflow plugin v2
+# yeoboya-workflow plugin
 
 5개 서비스(달라, 클럽라이브, 여보야, 클럽5678, AI식단) × 2 플랫폼(iOS, Android) × 3 workType(feature, update, bugfix) 개발 워크플로우 자동화.
 

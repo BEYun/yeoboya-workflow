@@ -19,7 +19,7 @@ description: "사용자가 /yeoboya-setup-workspace를 호출할 때, workspace.
 
 누락 시 출력 예시:
 ```
-plugin v2는 다음 설치가 필요합니다:
+이 플러그인은 다음 설치가 필요합니다:
   - superpowers 플러그인 (https://github.com/anthropics/claude-plugins)
   - Notion MCP (notion-search 도구 호출 실패)
   - 하네스 플러그인 (harness-root 스킬 미노출 — 하네스 work 닫힌 루프 의존)
