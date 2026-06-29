@@ -65,14 +65,19 @@ prerequisite 통과 후 사용자에게 순차 질문. **자유입력 항목은 
 
 ## 2.5 Notion 식별자 fetch (자동 확정)
 
-§2의 서비스·작업자 이름을 바탕으로 두 식별자를 Notion에서 **검색해 확정**한다. 확정값은 §3에서 `workspace.json.notion`에 캐시 저장하며, 이후 publish-notion/create-work이 그대로 읽는다.
+§2의 서비스·작업자로 두 식별자를 Notion에서 해소해 §3 `workspace.json.notion`에 캐시한다. Notion 측 모델은 `references/notion-schema.md`가 SoT. 도구는 항상 suffix(`__notion-search` 등)로 매칭(§1 규약). **모호하면 임의 선택 금지 — 후보를 보여주고 사용자가 고르게 한다.** 내부 섹션 번호("2.5단계")나 도구 로딩을 사용자에게 말하지 말고 "Notion에서 작업 DB와 작업자를 확인합니다" 정도로만 안내한다.
 
-| 식별자 | fetch 방법 |
-|---|---|
-| `workerPageId` | 이름이 `__notion-get-users`로 끝나는 도구로 워크스페이스 멤버를 나열하고 §2의 작업자 이름과 매칭한다. 1명 매칭 → 그 페이지 ID 확정. 0명/다수 → 후보를 사용자에게 보여주고 1개 선택하게 한다. (도구명 접두사 `mcp__<서버>__`는 커넥터마다 다르니 suffix로 매칭 — §1 Notion MCP 규약과 동일.) |
-| `workDbDataSourceUrl` | 이름이 `__notion-search`로 끝나는 도구를 §2의 **서비스명을 쿼리**로 호출해 그 서비스의 작업 DB(data source)를 찾는다. 서비스별로 작업 DB가 다르므로 선택 서비스 기준으로 해소한다. 정확히 1개 → data source URL 확정. 0개/다수 → 후보(제목+URL)를 보여주고 1개 선택하게 한다. |
+**`workDbDataSourceUrl` — 선택 서비스의 작업 DB.** 서비스마다 다르고 `서비스 목록 → <서비스> → 작업 목록 → 작업 DB` 계층에 있다. 동명 "작업 DB"가 5개라 직접 검색은 금물 — 계층을 탄다:
 
-매칭이 모호하면 임의 선택하지 말고 반드시 사용자에게 확인받는다. 두 값 모두 확정돼야 §3로 진행한다.
+1. `__notion-search`로 **서비스명**을 찾아 ancestor가 `서비스 목록`인 페이지를 확정한다.
+2. 그 페이지를 `__notion-fetch`로 열어 `작업 목록` 자식 페이지를 찾는다.
+3. `작업 목록`을 `__notion-fetch`로 열면 인라인 `<database … data-source-url="collection://…">`가 있다. 그 `data-source-url`이 확정값이다.
+
+**`workerPageId` — 팀원 목록 DB의 작업자 행.** 워크스페이스 계정(`get-users`)이 **아니다** — 전 서비스 공용 `팀원 목록` 사람 DB의 한 행이다. 사람 DB URL은 `notion-schema.md §1` 고정값(`collection://cc47fa31-…`)이며, 없으면 `__notion-search query="팀원 목록"`의 `type=database` 결과를 fetch해 얻는다.
+
+1. `__notion-query-data-sources`로 조회한다: `SELECT url, "이름" FROM "<사람 DB url>" WHERE "이름" = '<작업자>'`.
+2. 1행이면 그 `url`의 페이지 ID가 확정값이다.
+3. 다수면 `개발 서비스`(§2 서비스 포함)·`플랫폼`으로 좁힌다.
 
 ## 3. `.workflow/workspace.json` 작성
 
