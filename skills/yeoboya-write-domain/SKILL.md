@@ -17,6 +17,7 @@ user-invocable: false
 ## 2. 입력 fetch
 
 1. 정책서 fetch (work.json.links['write-policy'] → notion-fetch)
+2. **workType=update 이전 버전 fetch** — `references/state-schema.md §6` 규칙대로 이전 도메인 명세서(자기 작업 재publish 또는 `referenceWork`의 도메인 명세서)를 해석해 fetch한다. 후보가 없으면 §6 소프트 안내 후 신규 작성으로 진행 확인.
 
 ## 3. 작성 절차
 
@@ -28,6 +29,7 @@ user-invocable: false
    - 전이 규칙 표 (From → To / 조건 / 역할)
    - 불변식 글머리
 5. **결정 필요 항목** — 정책서/검토에서 미해결로 남은 도메인 의문점. 없으면 "현재 없음" 명시.
+6. **변경 이력** (workType=update, `references/state-schema.md §6`) — 이전 버전이 있으면 §변경 이력에 이번 수정 1행 추가. 이전 버전 없이 신규로 진행한 경우 첫 행을 `최초 작성`으로 기록.
 
 본문 구조는 `references/domain-template.md`를 직접 따른다.
 
@@ -39,6 +41,7 @@ user-invocable: false
 - [ ] §2 역할별 시나리오 표 1행 이상, 역할 명칭이 정책서 §역할과 일치
 - [ ] 상태 머신이 필요한 엔터티는 §3.X에 Mermaid stateDiagram + 전이 규칙 + 불변식 모두 존재
 - [ ] §4 결정 필요 항목이 명시되거나 "현재 없음"
+- [ ] (workType=update) §변경 이력 1행 이상 (이전 버전 없이 신규 진행 시 `최초 작성`)
 
 ## 5. publish
 

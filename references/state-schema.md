@@ -21,7 +21,7 @@ This document is the **single source of truth** for state file schemas and share
 
 - `workType` ∈ {`feature`, `update`, `bugfix`} — create-work 라벨 + **select-subtask 세부작업 뷰 분기 키**(`SUBTASK_GROUPS`/`SUBTASK_LABELS` §4). 그 외 분기에는 쓰지 않는다.
 - `links`: **작성자와 무관하게** 이 작업의 정식 Notion 문서 링크. 키 존재 = 그 문서가 Notion에 존재함. 단일 페이지 → pageId 문자열, 다중 페이지(draw-data-flow) → `{ "<페이지 제목>": "<pageId>" }`. **권위 출처는 Notion(작업 row의 자식 페이지)이며 work.json.links는 그 캐시/인덱스**다. `notion-page-record` hook이 세션 내 생성 페이지를 즉시 기록(fast path)하고, `sync-links`가 작업 row 자식 페이지 전체와 reconcile(authoritative path)한다.
-- `referenceWork`: workType이 update이고 사용자가 참고 작업을 선택했을 때만 존재. 라벨 전용.
+- `referenceWork`: workType이 update이고 사용자가 참고 작업을 선택했을 때만 존재. create-work 라벨 표시 + **update 수정 스킬의 이전 버전 참고 입력**(§6). 선택은 옵션이므로 update여도 없을 수 있다.
 - `reviewDone`: `false`로 초기화. `review-code` 완료 시 `true`로 갱신. `finish-work` 진입 유일 하드 선행조건.
 - `codeBaseSha`: write-code가 하네스 `work` 호출 직전 `git rev-parse HEAD`로 기록하는 **코드 작업 시작 SHA**(커밋 없으면 `null`). 재개 시 덮어쓰지 않는다. review-code/finish-work가 `codeBaseSha..HEAD` range로 이 작업의 커밋을 수집하는 기준점. `null`이면 `git log --grep='[<작업번호>]'` legacy 경로로 대체.
 - stages/status 개념 없음. 초기화 시 `links: {}`.
@@ -144,3 +144,20 @@ WORKTYPE_LABEL = { feature: "신규 개발", update: "변경/고도화", bugfix:
 - Hook code (`hooks/lib/`) reads/writes the same schemas via Node.js
 - Schema changes happen here first, then downstream files (hook lib, skill bodies) are updated
 - `links` 동기화는 `hooks/lib/sync-links.js`가 담당: 작업 row 자식 페이지 `[{title,id}]`를 stdin으로 받아 `resolveKey`(constants.json)로 매칭·병합·atomicWrite. LLM은 links를 직접 쓰지 않는다.
+
+## 6. update 수정 스킬: 이전 버전 해석 규칙
+
+라벨이 `작성→수정`으로 바뀌는 **문서 산출 4개 스킬**(`write-policy`, `write-domain`, `draw-ui-flow`, `draw-data-flow`)은 workType=update일 때 본 산출물을 **이전 버전 기반 수정**으로 처리한다. 이 규칙의 정의는 여기 1곳뿐이며 각 스킬 본문은 이를 참조한다(중복 정의 금지).
+
+**책임 위치**: 각 스킬 §1 전제 / §2 입력 fetch. `select-subtask`은 관여하지 않는다 — 디스패처의 책임은 §7에서 `referenceWork`를 trigger 컨텍스트로 넘기는 것까지다. 이 부재 처리는 **항상 소프트**다(유일한 하드 게이트 = write-code 필수문서 + reviewDone, 불변).
+
+**실행 절차** (진입 `sync-links` 직후):
+
+1. 이전 버전 후보를 우선순위로 해석한다:
+   - **(1) 자기 작업 재publish** — `work.json.links[<key>]` 존재 시 그 페이지가 이전 버전.
+   - **(2) 참고 작업** — `work.json.referenceWork` 존재 그리고 `.workflow/<referenceWork>/work.json.links[<key>]` 존재 시 그 문서가 이전 버전. 다중 페이지 키(draw-data-flow)는 `links[<key>][<title>]` 전체.
+2. 분기:
+   - **후보 있음** → Notion에서 fetch해 수정의 출발점으로 삼고, §변경 이력에 이번 수정 1행 추가.
+   - **후보 없음** → 소프트 안내 후 진행 확인(하드 블록 아님): `"참고할 이전 버전이 없습니다. 신규 작성으로 진행할까요? (네/아니요)"`. "네"면 신규 작성으로 진행하며 §변경 이력 첫 행을 `최초 작성`으로 기록한다. "네" 외 응답은 작성을 중단한다(사용자가 새 세션에서 재선택).
+
+라벨이 불변인 스킬(`write-qa`, `write-policy-feedback`)과 `write-code`(하네스 `work` 재개로 수정 처리, Notion 문서 없음)는 이 규칙에서 제외한다.

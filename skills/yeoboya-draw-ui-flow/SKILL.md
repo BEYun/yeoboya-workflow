@@ -17,6 +17,7 @@ UI 흐름도 작성. **화면(screen)과 사용자 액션(user action)을 ID로 
 ## 2. 입력 fetch
 
 - 도메인 명세서 + 정책서 fetch
+- **workType=update 이전 버전 fetch** — `references/state-schema.md §6` 규칙대로 이전 UI 흐름도(자기 작업 재publish 또는 `referenceWork`의 UI 흐름도)를 해석해 fetch한다. 후보가 없으면 §6 소프트 안내 후 신규 작성으로 진행 확인.
 
 ## 3. 작성 절차
 
@@ -30,6 +31,7 @@ UI 흐름도 작성. **화면(screen)과 사용자 액션(user action)을 ID로 
 8. **화면 전환 관계 표** — From/To/액션 ID/진입 조건/트리거/뒤로가기 6열.
 9. **엣지 케이스 표** — 카테고리/대상 ID/트리거/표현/복귀 경로/정책 출처 6열.
 10. **정책서 미정 항목** — 회의 결정 필요한 unclear 노드 목록.
+11. **변경 이력** (workType=update, `references/state-schema.md §6`) — 이전 버전이 있으면 §변경 이력에 이번 수정 1행 추가. 이전 버전 없이 신규로 진행한 경우 첫 행을 `최초 작성`으로 기록.
 
 본문 구조는 `references/ui-flow-template.md`를 직접 따른다.
 
@@ -49,6 +51,7 @@ UI 흐름도 작성. **화면(screen)과 사용자 액션(user action)을 ID로 
 - [ ] §5 전환 표의 모든 `From ID`·`To ID`가 §1에 존재
 - [ ] §6 엣지 케이스의 `대상 ID`가 §1 화면 ID 또는 §2 액션 ID에 존재
 - [ ] §정책서 미정 항목이 명시되거나 "현재 없음"
+- [ ] (workType=update) §변경 이력 1행 이상 (이전 버전 없이 신규 진행 시 `최초 작성`)
 
 ## 5. publish
 

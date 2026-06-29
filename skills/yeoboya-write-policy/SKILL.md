@@ -18,7 +18,7 @@ user-invocable: false
 
 1. Notion에서 작업 DB row 조회 (yeoboya-publish-notion mode=sync) → 작업명/도메인/담당자 등 보조 정보
 2. **기획서 검토 페이지 fetch** (`work.json.links['write-policy-feedback']` → notion-fetch)
-3. workType=update + referenceWork 있을 시: 참고 작업의 정책서(`<referenceWork>`의 work.json.links['write-policy']) fetch
+3. **workType=update 이전 버전 fetch** — `references/state-schema.md §6` 규칙대로 이전 정책서(자기 작업 재publish 또는 `referenceWork`의 정책서)를 해석해 fetch한다. 후보가 없으면 §6 소프트 안내 후 신규 작성으로 진행 확인.
 
 ## 3. 작성 절차
 
@@ -29,7 +29,7 @@ user-invocable: false
 2. **본문 작성** — `references/policy-template.md` 구조 그대로 9 섹션 (용어/역할/파라미터/정책 카탈로그/예외·롤백/변경 이력/배경/측정 지표/원본 자료).
    - POL-NNN ID는 등록 순번. 카테고리는 도메인별 자유 정의.
    - 예외·롤백 동작 유형은 template 6종 (Auto-Fallback / Toast Notice / Invalidation / Deferral / Early Settlement / Non-Participation) 외 신규 카테고리 추가 가능.
-3. **변경 이력** — workType=update 또는 재publish 시 §변경 이력에 1행 이상 추가.
+3. **변경 이력** (`references/state-schema.md §6`) — 이전 버전이 있으면(workType=update 또는 재publish) §변경 이력에 이번 수정 1행 추가. 이전 버전 없이 신규로 진행한 경우 첫 행을 `최초 작성`으로 기록.
 
 ## 4. Self-validation (publish 직전)
 
@@ -41,7 +41,7 @@ user-invocable: false
 - [ ] §정책 카탈로그에 카테고리 1개 이상 + POL-001 이상 ID 1개 이상
 - [ ] §정책 카탈로그의 모든 POL 행이 `예외` 컬럼 명시 (예외 없으면 "—")
 - [ ] §예외/롤백 동작 유형 분류 1개 이상 (해당 없으면 "해당 없음" 명시) — 각 분류는 트리거/동작/메시지 3열 표
-- [ ] §변경 이력 1행 이상
+- [ ] §변경 이력 1행 이상 (수정 시 이번 변경, 신규 작성 시 `최초 작성` — state-schema §6)
 - [ ] §원본 자료 1개 이상
 
 실패 시 사용자에게 누락 항목 안내 후 보완.

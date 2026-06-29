@@ -57,4 +57,12 @@ sequenceDiagram
 ## 수정사항
 
 회의 결과 기록.
+
+## 변경 이력
+
+(workType=update 또는 재publish 시 1행 이상. 이전 버전 없이 신규 작성이면 첫 행 `최초 작성`. — state-schema §6)
+
+| 일자 | 작업자 | 변경 요약 | 참고본 |
+|---|---|---|---|
+| YYYY-MM-DD | <작업자> | <이번 수정 요약 / 최초 작성> | <referenceWork 작업번호 또는 —> |
 ````
