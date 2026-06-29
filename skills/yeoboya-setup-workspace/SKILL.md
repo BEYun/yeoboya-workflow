@@ -1,6 +1,6 @@
 ---
 name: yeoboya-setup-workspace
-description: "사용자가 /yeoboya-setup-workspace를 호출할 때, workspace.json이 없어 다른 yeoboya-* 스킬이 부트스트랩해야 할 때, 또는 사용자가 'plugin setup', 'workspace setup', '플러그인 설정', '워크스페이스 설정'을 언급할 때 사용한다. 모든 /yeoboya-create-work 호출 이전에 반드시 먼저 실행해야 한다. superpowers + Notion MCP 선행조건을 검증하고, 서비스/플랫폼/작업자/Notion 설정을 수집하며, .workflow/workspace.json을 작성한다."
+description: "사용자가 /yeoboya-setup-workspace를 호출할 때, workspace.json이 없어 다른 yeoboya-* 스킬이 부트스트랩해야 할 때, 또는 사용자가 'plugin setup', 'workspace setup', '플러그인 설정', '워크스페이스 설정'을 언급할 때 사용한다. 모든 /yeoboya-create-work 호출 이전에 반드시 먼저 실행해야 한다. superpowers · Notion MCP · 하네스 플러그인 3개 선행조건을 검증하고, 서비스/플랫폼/작업자/Notion 설정을 수집하며, .workflow/workspace.json을 작성한다."
 ---
 
 # yeoboya-setup-workspace
