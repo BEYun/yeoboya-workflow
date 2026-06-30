@@ -107,6 +107,32 @@ test('extractPageIds returns empty array on malformed response', () => {
   assert.deepEqual(notion.extractPageIds('not-json'), []);
 });
 
+// Real MCP tool_response is wrapped in a content envelope by the harness before
+// it reaches the PostToolUse hook. The fast-path was 100% dead in production
+// (logs: 13 page-record events, all "miss") because extractPageIds only looked
+// at top-level results/id. These cases pin the real shapes.
+test('extractPageIds unwraps MCP content envelope around update-page response', () => {
+  const envelope = { content: [{ type: 'text', text: JSON.stringify({ id: 'p-9' }) }] };
+  assert.deepEqual(notion.extractPageIds(envelope), ['p-9']);
+});
+
+test('extractPageIds unwraps MCP content envelope around create-pages response', () => {
+  const inner = { pages: [{ id: 'p-1' }, { id: 'p-2' }] };
+  const envelope = { content: [{ type: 'text', text: JSON.stringify(inner) }] };
+  assert.deepEqual(notion.extractPageIds(envelope), ['p-1', 'p-2']);
+});
+
+test('extractPageIds handles raw create-pages pages[] shape', () => {
+  assert.deepEqual(notion.extractPageIds({ pages: [{ id: 'p-1' }] }), ['p-1']);
+});
+
+test('extractPageIds falls back to a Notion id embedded in envelope text/URL', () => {
+  // If the inner text is prose/URL rather than JSON, recover the 32-hex id.
+  const url = 'https://www.notion.so/UI-38f2009712ab34cd56ef78ab90cdda48';
+  const envelope = { content: [{ type: 'text', text: `Created page: ${url}` }] };
+  assert.deepEqual(notion.extractPageIds(envelope), ['38f2009712ab34cd56ef78ab90cdda48']);
+});
+
 test('resolveKey maps "기획서 검토" → write-policy-feedback', () => {
   assert.equal(notion.resolveKey('기획서 검토'), 'write-policy-feedback');
 });

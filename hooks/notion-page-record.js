@@ -22,7 +22,12 @@ const { readActiveWork, recordLink } = require('./lib/work');
   const ids = extractPageIds(payload.tool_response);
 
   if (!ids.length) {
-    log({ hook: 'page-record', event: 'miss', reason: 'no-page-id-in-response', tool: toolName });
+    // Capture net: if extraction still misses, record the real response shape
+    // (truncated) so an unseen envelope variant can be pinned without guessing.
+    let shape;
+    try { shape = JSON.stringify(payload.tool_response).slice(0, 400); }
+    catch { shape = String(payload.tool_response).slice(0, 400); }
+    log({ hook: 'page-record', event: 'miss', reason: 'no-page-id-in-response', tool: toolName, shape });
     return allow();
   }
 

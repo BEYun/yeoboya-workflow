@@ -92,14 +92,42 @@ function extractPagesFromInput(toolName, toolInput) {
   return [];
 }
 
+// Recover a Notion page id (32 hex, dashed or dashless) from free text such as
+// a page URL — the last resort when the envelope carries prose, not JSON.
+const NOTION_ID_RE = /[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}/i;
+
+function idsFromText(text) {
+  if (typeof text !== 'string') return [];
+  try {
+    const ids = extractPageIds(JSON.parse(text));
+    if (ids.length) return ids;
+  } catch { /* not JSON — fall through to id-in-text recovery */ }
+  const m = text.match(NOTION_ID_RE);
+  return m ? [m[0]] : [];
+}
+
+// The harness wraps an MCP tool_response in a content envelope before it reaches
+// the PostToolUse hook, so the page id is not at the top level. Unwrap the
+// envelope (content[].text holds the real payload, often JSON-as-string), then
+// read whichever array/scalar shape create-pages or update-page actually used.
 function extractPageIds(toolResponse) {
   let r = toolResponse;
   if (typeof r === 'string') {
-    try { r = JSON.parse(r); } catch { return []; }
+    try { r = JSON.parse(r); } catch { return idsFromText(toolResponse); }
   }
   if (!r || typeof r !== 'object') return [];
-  if (Array.isArray(r.results) && r.results.length) {
-    return r.results.map((x) => x?.id).filter(Boolean);
+  // MCP content envelope: { content: [{ type: 'text', text: '…' }] }
+  if (Array.isArray(r.content) && r.content.length) {
+    for (const block of r.content) {
+      const ids = idsFromText(block?.text);
+      if (ids.length) return ids;
+    }
+  }
+  for (const arr of [r.results, r.pages, r.data]) {
+    if (Array.isArray(arr) && arr.length) {
+      const ids = arr.map((x) => x?.id ?? x?.page_id).filter(Boolean);
+      if (ids.length) return ids;
+    }
   }
   const single = r.id ?? r.page_id;
   return single ? [single] : [];
