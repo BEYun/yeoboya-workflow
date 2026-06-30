@@ -8,7 +8,9 @@
 - **Notion MCP** (`mcp__<notion-server>__notion-*` 도구군 — `<notion-server>` 접두사는 커넥터마다 다르다(로컬 구성 시 이름, claude.ai 커넥터 시 UUID). 플러그인은 서버명에 결합하지 않고 `notion-*` 도구명 suffix로 매칭한다. suffix 단일 출처: `hooks/lib/constants.json` `NOTION_TOOL_NAMES`)
 - **하네스 플러그인** (`work` 닫힌 루프 엔진 + `harness-root`/`harness-module`/`harness-check`/`harness-update`). write-code가 코드 구현을 `work`에 위임하므로 하드 의존이다.
 
-셋 중 하나라도 누락되면 `/yeoboya-setup-workspace`가 차단한다. 추가로 setup-workspace는 현재 repo의 하네스 **부트스트랩**(harness-root/harness-module 1회 실행)을 확인해 `workspace.json.harness.bootstrapped`에 기록한다.
+셋 중 하나라도 누락되면 `/yeoboya-setup-workspace`가 차단한다. 추가로 setup-workspace는 현재 repo의 하네스 **부트스트랩**을 확인해 `workspace.json.harness.bootstrapped`에 기록한다. 부트스트랩 판정은 **루트 문서 존재**(`CLAUDE.md` + `docs/CONVENTIONS.md` + 내용 있는 `docs/rules/TESTING.md`)로만 한다 — 이 문서는 `harness-root` 1회 실행으로 만들어진다. `harness-module`(leaf 모듈별 CLAUDE.md)은 모듈이 있는 repo에서만 유용하며 부트스트랩 게이트의 선행조건이 아니다.
+
+단, **플래그를 쓰는 주체는 오직 setup-workspace다**. `harness-root`는 문서만 생산하고 `bootstrapped`를 건드리지 않으며, write-code 등 다른 스킬은 이 플래그를 **읽기만** 하고 repo를 재스캔하지 않는다(state-schema §3). 따라서 harness-root 실행 후에는 반드시 `/yeoboya-setup-workspace`를 **다시 호출**해 문서 존재를 재검증해야 `bootstrapped=true`로 확정된다.
 
 ## SOT 분리
 

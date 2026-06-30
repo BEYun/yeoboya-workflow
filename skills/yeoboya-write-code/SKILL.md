@@ -16,7 +16,7 @@ user-invocable: false
 - **하네스 부트스트랩 가정**: `.workflow/workspace.json`의 `harness.bootstrapped`를 읽는다(repo 스캔 아님 — 플래그 1회 읽기). `true`가 아니면 아래 안내 후 **즉시 종료**(work을 호출하지 않는다):
   ```
   이 repo는 하네스 부트스트랩이 확인되지 않았습니다(harness.bootstrapped ≠ true).
-  /harness-root → /harness-module 실행 후 /yeoboya-setup-workspace를 다시 호출해 부트스트랩을 확정한 뒤 진행하세요.
+  /harness-root 실행(leaf 모듈이 있으면 이어서 /harness-module) 후 /yeoboya-setup-workspace를 다시 호출해 부트스트랩을 확정한 뒤 진행하세요.
   ```
 
 ## 2. 첫 호출 vs 재개 분기

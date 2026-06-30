@@ -48,8 +48,10 @@ fi
 이 repo는 아직 하네스 부트스트랩이 안 됐습니다.
 work 닫힌 루프는 docs/rules/TESTING.md(완료기준 명령 출처)와
 CONVENTIONS/ARCHITECTURE(검토 기준)에 의존합니다.
-먼저 1회: /harness-root → /harness-module 을 실행한 뒤,
-다시 /yeoboya-setup-workspace를 호출하면 부트스트랩이 확정됩니다.
+먼저 1회: /harness-root 를 실행하면 위 루트 문서가 생깁니다.
+(leaf 모듈별 CLAUDE.md가 필요하면 이어서 /harness-module —
+ 부트스트랩 판정에는 필수가 아닙니다.)
+그 뒤 다시 /yeoboya-setup-workspace를 호출하면 부트스트랩이 확정됩니다.
 (부트스트랩 전에는 write-code가 work 호출을 차단합니다.)
 ```
 
