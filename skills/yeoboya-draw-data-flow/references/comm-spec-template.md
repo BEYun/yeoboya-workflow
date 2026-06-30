@@ -15,7 +15,7 @@
 
 ### <METHOD /도메인/리소스> [확정 | 논의중]
 
-- 사용 액션 ID: `<역할>:Action:N`
+- 사용 액션 ID: `<페르소나>:Action:N`
 - Request:
   ```json
   { ... }
@@ -34,7 +34,7 @@
 
 ### <cmd 명> [확정 | 논의중]
 
-- 사용 ID: `<역할>:Action:N` 또는 `<역할>:Event:N`
+- 사용 ID: `<페르소나>:Action:N` 또는 `<페르소나>:Event:N`
 - 발신자: 클라이언트 / 서버
 - Payload:
   ```json

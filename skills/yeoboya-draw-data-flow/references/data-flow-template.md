@@ -7,9 +7,9 @@
 > 통신 명세서 서브페이지: <통신 명세서 link>
 > 이전 버전: <referenceWork 작업번호 + Notion 링크 | 코드베이스 (<경로>) | —>
 
-## 역할 인벤토리
+## 페르소나 인벤토리
 
-| 역할 | 주요 시나리오 |
+| 페르소나 | 주요 시나리오 |
 |---|---|
 | ... | ... |
 
@@ -26,34 +26,34 @@
 | 데이터 흐름도 상태 | 도메인 §3 대응 |
 |---|---|
 
-## <역할> 섹션
+## <페르소나> 섹션
 
-(각 역할 반복)
+(각 페르소나 반복)
 
-### <역할> 시퀀스 다이어그램
+### <페르소나> 시퀀스 다이어그램
 
 ```mermaid
 sequenceDiagram
-    actor X as <역할>
-    participant FE as <역할> 클라이언트
+    actor X as <페르소나>
+    participant FE as <페르소나> 클라이언트
     participant BE as 서버
     participant DB as DB
 
     rect rgb(50, 60, 80)
         Note over X,BE: <단계명>
-        X->>FE: [<역할>:Action:N] ...
+        X->>FE: [<페르소나>:Action:N] ...
         FE->>BE: ...
         BE->>DB: ...
-        BE-->>FE: [<역할>:Event:N] ...
+        BE-->>FE: [<페르소나>:Event:N] ...
     end
 ```
 
-### <역할> 액션·채널 매트릭스
+### <페르소나> 액션·채널 매트릭스
 
 | ID | 단계명 | 채널 | 메서드/이벤트명 |
 |---|---|---|---|
-| <역할>:Action:1 | ... | Socket / API | <cmd 또는 endpoint> |
-| <역할>:Event:1 | ... | Socket | <cmd> |
+| <페르소나>:Action:1 | ... | Socket / API | <cmd 또는 endpoint> |
+| <페르소나>:Event:1 | ... | Socket | <cmd> |
 
 ## 수정사항
 
