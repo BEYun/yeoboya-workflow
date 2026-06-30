@@ -42,7 +42,7 @@
 - **write-code 진입 게이트**: `select-subtask`이 write-code trigger 직전 `sync-links`로 links를 최신화한 뒤 필수 문서 집합(`{정책서, UI 흐름도, 데이터 흐름도}`)을 검사한다. **workType=feature는 하나라도 없으면 하드 블록**, update/bugfix는 경고 후 진행 가능.
 - **버그 분석 선행 경고(소프트)**: bugfix에서 `write-qa`(QA 시나리오) 선택 시 `work.json.links`에 `analyze-bug`(버그 분석)이 없으면 경고 후 진행 가능(차단 아님). 하드 게이트가 아니다.
 - **write-code = 하네스 work 위임 래퍼**: write-code는 더 이상 phase를 직접 실행하지 않는다. 선행 Notion 산출물+하네스 문서로 `.workflow/<작업번호>/plan.md`를 만들고 `work.json.codeBaseSha`를 기록한 뒤, 하네스 플러그인의 `work` 닫힌 루프(plan-reviewer→TDD→검증→bug-fix→harness-check→harness-update)에 구현을 위임한다. 하네스 부트스트랩 미확인(`harness.bootstrapped ≠ true`) 시 write-code는 하네스 work을 호출하지 않고 setup-workspace 재실행을 안내한다.
-- **finish-work 하드 선행조건**: `work.json.reviewDone === true`일 때만 실행 가능. select-subtask와 finish-work 양쪽에서 확인. 플래그(reviewDone) 기반 하드 선행조건은 이것이 유일하다. (write-code는 feature에 한해 필수 문서 게이트라는 별도 하드 블록이 있다 — 위 write-code 진입 게이트 불릿 참조.) 그 외 세부작업에는 선행조건 없음.
+- **finish-work 하드 선행조건**: `work.json.codeReviewDone === true`일 때만 실행 가능. select-subtask와 finish-work 양쪽에서 확인. 플래그(codeReviewDone) 기반 하드 선행조건은 이것이 유일하다. (write-code는 feature에 한해 필수 문서 게이트라는 별도 하드 블록이 있다 — 위 write-code 진입 게이트 불릿 참조.) 그 외 세부작업에는 선행조건 없음.
 
 ## 스킬 self-validation 원칙
 

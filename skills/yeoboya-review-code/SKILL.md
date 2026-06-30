@@ -59,7 +59,7 @@ git log "$BASE"..HEAD --oneline | grep -v '\[<작업번호>\]'   # 있으면 ⚠
 
 - [ ] 리뷰 산출물에 모든 발견 사항이 표 형태로 정리
 - [ ] 각 발견 사항에 결정 (수정/수용/반박) 라벨
-- [ ] work.json.reviewDone이 true로 갱신됐는지 확인
+- [ ] work.json.codeReviewDone이 true로 갱신됐는지 확인
 
 ## 6. publish (옵션)
 
@@ -74,11 +74,11 @@ yeoboya-publish-notion 호출:
 ```
 단, review-code는 `TITLE_TO_KEY`에 매핑이 없어 publish해도 hook이 work.json.links에 자동 기록하지 않는다.
 
-## 6.5 reviewDone 기록
+## 6.5 codeReviewDone 기록
 
 리뷰 종료 직전 (publish 여부와 무관하게):
 
-`.workflow/<작업번호>/work.json`을 Read → `reviewDone` 필드를 `true`로 설정 → Write.
+`.workflow/<작업번호>/work.json`을 Read → `codeReviewDone` 필드를 `true`로 설정 → Write.
 
 이 단계를 건너뛰면 `finish-work` 진입이 영구 차단된다.
 
