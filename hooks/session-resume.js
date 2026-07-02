@@ -42,7 +42,7 @@ function buildResumeBlock({ work, data }) {
   }
 
   if (!work) {
-    log({ hook: 'session-resume', event: 'skip', reason: 'no-active-work' });
+    log({ hook: 'session-resume', event: 'skip', reason: 'no-active-task' });
     return silent();
   }
 
@@ -50,7 +50,7 @@ function buildResumeBlock({ work, data }) {
   try {
     data = readTask(root, work);
   } catch (e) {
-    log({ hook: 'session-resume', event: 'work-read-error', work, message: String(e?.message || e) });
+    log({ hook: 'session-resume', event: 'task-read-error', work, message: String(e?.message || e) });
   }
 
   const ctx = buildResumeBlock({ work, data });
